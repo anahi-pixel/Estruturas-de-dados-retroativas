@@ -10,7 +10,8 @@ struct Node {
     Node* right;
     int weight;         //1 if push -1 if pop
     int leftover;
-    bool is_leaf; 
+    bool is_leaf;
+    int size; 
 
     Node(int k, int v, int w) {    //Leaf
         key=k;
@@ -23,6 +24,8 @@ struct Node {
 
         if (w == -1) leftover = 0;
         else leftover = 1;
+
+        size=1;
     }
     
     Node(int k, int lo, int w, Node* l, Node* r){   //internal node
@@ -34,19 +37,21 @@ struct Node {
         weight=w;
         leftover=lo;
         is_leaf=false;
+        size=0;
     }
 };
 
 //TREAP
 class Treap{
     private:
-    Node* rotateLeft(Node* root);
-    Node* rotateRight(Node* root);
-    Node* _insert(Node* root, int key, int value, int k);
-    Node* _erase(Node* root, int key, int k);
+    Node* rotateLeft(Node* node);
+    Node* rotateRight(Node* node);
+    Node* _insert(Node* node, int key, int value, int k);
+    Node* _erase(Node* node, int key, int k);
     int _count(Node* node,int time,int cnt);
     vector<int> _Kth(Node* Node, int time, int k);
     int get(Node* node, int value);
+    void update(Node* node);
 
     public:
     Node* root;
@@ -57,9 +62,9 @@ class Treap{
     void erase(int key, int k);               
     int count(int time);
     int Kth(int time, int k);
-    void inorderTraversal(Node* root);
+    void inorderTraversal(Node* node);
     void traverse();
-    void print(int time);
+    int size(Node* node);
 };
 
 Node* Treap::rotateLeft(Node* node) {
@@ -67,7 +72,10 @@ Node* Treap::rotateLeft(Node* node) {
     node->right = newRoot->left;
     newRoot->left = node;
 
-    node->weight=node->left->weight+node->right->weight;
+    update(node);
+    update(newRoot);
+
+    /*node->weight=node->left->weight+node->right->weight;
     newRoot->weight=newRoot->left->weight+newRoot->right->weight;
 
     int lo=node->left->leftover+node->right->weight;
@@ -82,7 +90,7 @@ Node* Treap::rotateLeft(Node* node) {
         lo=newRoot->right->leftover;
     }
     if(lo<=0) newRoot->leftover=0;
-    else newRoot->leftover=lo;
+    else newRoot->leftover=lo;*/
 
     return newRoot;
 }
@@ -92,7 +100,9 @@ Node* Treap::rotateRight(Node* node) {
     node->left = newRoot->right;
     newRoot->right = node;
 
-    node->weight=node->left->weight+node->right->weight;
+    update(node);
+    update(newRoot);
+    /*node->weight=node->left->weight+node->right->weight;
     newRoot->weight=newRoot->left->weight+newRoot->right->weight;
 
     int lo=node->left->leftover+node->right->weight;
@@ -107,7 +117,7 @@ Node* Treap::rotateRight(Node* node) {
         lo=newRoot->right->leftover;
     }
     if(lo<=0) newRoot->leftover=0;
-    else newRoot->leftover=lo;
+    else newRoot->leftover=lo;*/
 
     return newRoot;
 }
@@ -117,84 +127,86 @@ void Treap::insert(int key, int value, int k){                  //k=1 or -1 (wei
     else root= _insert(root,key,value,k);
 }
 
-Node* Treap::_insert(Node* root, int key, int value, int w) {   //k=weight
+Node* Treap::_insert(Node* node, int key, int value, int w) {   //w=weight
 
-    if (root->is_leaf){
+    if (node->is_leaf){
         Node* new_node;
         Node* _leaf=new Node(key,value,w);
-        int sum = root->weight + w;
+        int sum = node->weight + w;
 
-         if(key < root->key){
+         if(key < node->key){
             int lo;
 
-            if (w < root->weight) lo = 1;
-            else if (w == root->weight && w > 0)lo = 2;
+            if (w < node->weight) lo = 1;
+            else if (w == node->weight && w > 0)lo = 2;
             else lo = 0;
 
-            new_node =new Node(key, lo, sum, _leaf, root);
+            new_node =new Node(key, lo, sum, _leaf, node);
          }
         else {
             int lo;
-            if (root->weight < w) lo = 1;
-            else if (w == root->weight && w > 0) lo = 2;
+            if (node->weight < w) lo = 1;
+            else if (w == node->weight && w > 0) lo = 2;
             else lo = 0;
-            new_node = new Node(root->key, lo, sum, root, _leaf);
+            new_node = new Node(node->key, lo, sum, node, _leaf);
         }
         return new_node;
     }
-    else if (key < root->right->key) { 
-        root->left = _insert(root->left, key, value, w);
-        if (root->left->priority < root->priority)
-            root = rotateRight(root);
+    else if (key < node->right->key) { 
+        node->left = _insert(node->left, key, value, w);
+        if (node->left->priority < node->priority)
+            node = rotateRight(node);
     }
     else {
-        root->right = _insert(root->right, key, value, w);
-        if (root->right->priority < root->priority)
-            root = rotateLeft(root);
+        node->right = _insert(node->right, key, value, w);
+        if (node->right->priority < node->priority)
+            node = rotateLeft(node);
     }
 
-    int lo=root->left->leftover+root->right->weight;
+    /*int lo=root->left->leftover+root->right->weight;
     if(root->right->leftover> lo) {
         lo=root->right->leftover;
     }
     if(lo<=0) root->leftover=0;
-    else root->leftover=lo;
-
-    root->weight += w;
-    root->key=root->left->key;
-    return root;
+    else root->leftover=lo;*/
+    update(node);
+    //root->weight += w;
+    //root->key=root->left->key;
+    return node;
 }
 
 void Treap::erase(int key, int k){          //k is weight
     if(root) root=_erase(root,key, k);
 }
 
-Node* Treap::_erase(Node* root, int key, int k) {         
+Node* Treap::_erase(Node* node, int key, int k) {         
     int lo=0;
-    if (root->is_leaf) return nullptr;
-    else if (key<root->right->key){
-        root->left=_erase(root->left,key,k);
-        if(!root->left) root=root->right;
+    if (node->is_leaf) return nullptr;
+    else if (key<node->right->key){
+        node->left=_erase(node->left,key,k);
+        if(!node->left) node=node->right;
         else {
-            root->weight-=k;
+            /*root->weight-=k;
             lo=root->left->leftover+root->right->weight;
             if(lo<=0)root->leftover=0;
             else root->leftover=lo;
-            root->key=root->left->key;
+            root->key=root->left->key;*/
+            update(node);
         }
     }
     else {
-        root->right=_erase(root->right,key,k);
-        if(!root->right) root=root->left;
+        node->right=_erase(node->right,key,k);
+        if(!node->right) node=node->left;
         else{
-            root->weight-=k;
+            /*root->weight-=k;
             lo=root->left->leftover+root->right->weight;
             if(lo<=0)root->leftover=0;
             else root->leftover=lo;
-            root->key=root->left->key;
+            root->key=root->left->key;*/
+            update(node);
         }
     }
-    return root;
+    return node;
 }
 
 //returns number of leaves with key<= time
@@ -214,7 +226,7 @@ int Treap::_count(Node* node, int time, int cnt){
         return _count(node->left,time,cnt);
     }
     else {
-        cnt+=node->left->leftover;
+        cnt+=node->left->weight;  
         return _count(node->right,time,cnt);
     }
 };
@@ -267,11 +279,11 @@ int Treap::get(Node* node, int k)  {                            //k=position
         return get(node->left, k - node->right->weight);
 };      
 
-void Treap::inorderTraversal(Node* root) {
-    if (root) {
-        inorderTraversal(root->left);
-        if(root->value != INT_MAX)cout << root->key << ":" << root->value << " ";
-        inorderTraversal(root->right);
+void Treap::inorderTraversal(Node* node) {
+    if (node) {
+        inorderTraversal(node->left);
+        if(node->value != INT_MAX)cout << node->key << ":" << node->value << " ";
+        inorderTraversal(node->right);
     }
 }
 
@@ -279,15 +291,25 @@ void Treap::traverse(){
     inorderTraversal(root);
 }
 
-void Treap::print(int time){
-    cout<<"Pilha no instante "<<time<< ":"<<endl;
-    int i=1;
-    int kth = Kth(time,i);
-    while (kth!=INT_MAX){
-        cout<<"Posicao "<<i<<": "<<kth<<endl;
-        i++;
-        kth=Kth(time,i);
-    };
+void Treap::update(Node* node){
+    if(node->is_leaf) return;
+
+    node->size=node->right->size+node->left->size+1;
+
+    int lo=node->left->leftover+node->right->weight;
+    if(node->right->leftover> lo) {
+        lo=node->right->leftover;
+    }
+    if(lo<=0) node->leftover=0;
+    else node->leftover=lo;
+
+    node->weight=node->left->weight+node->right->weight;
+
+    root->key=root->left->key;
+}
+
+int Treap::size(Node* node){
+    return node->size;
 }
 
 class TotalStack{
@@ -321,36 +343,47 @@ class TotalStack{
     int query_kth(int time,int k){
         return treap->Kth(time,k);
     }
+
+    void print(int time){
+    cout<<"Pilha no instante "<<time<< ":"<<endl;
+    int i=1;
+    int kth = treap->Kth(time,i);
+    while (kth!=INT_MAX){
+        cout<<"Posicao "<<i<<": "<<kth<<endl;
+        i++;
+        kth=treap->Kth(time,i);
+    };
+}
 };
 
 int main(){
     TotalStack totalStack = TotalStack();
     totalStack.add_push(5,10); 
     cout<<"add_push(5,10)"<<endl;
-    totalStack.treap->print(10);
+    totalStack.print(10);
 
     totalStack.add_push(18,15);
     cout<<"add_push(18,15)"<<endl;
-    totalStack.treap->print(20);
+    totalStack.print(20);
     
     totalStack.add_push(2,3);
     cout<<"add_push(2,3)"<<endl;
-    totalStack.treap->print(10);
+    totalStack.print(10);
 
     totalStack.add_push(11,7);
     cout<<"add_push(11,7)"<<endl;
-    totalStack.treap->print(20);
-    totalStack.treap->print(12);
+    totalStack.print(20);
+    totalStack.print(12);
 
     totalStack.add_pop(20);
     cout<<"add_pop(20)"<<endl;
-    totalStack.treap->print(20);
+    totalStack.print(20);
 
     totalStack.remove_pop(20);
     cout<<"remove_pop(20)"<<endl;
-    totalStack.treap->print(20);
+    totalStack.print(20);
 
     totalStack.remove_push(18);
     cout<<"remove_push(18)"<<endl;
-    totalStack.treap->print(20);
+    totalStack.print(20);
 }
