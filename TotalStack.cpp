@@ -48,7 +48,7 @@ class Treap{
     Node* rotateRight(Node* node);
     Node* _insert(Node* node, int key, int value, int k);
     Node* _erase(Node* node, int key, int k);
-    int _count(Node* node,int time,int cnt);
+    int _count(Node* node,int time);
     vector<int> _Kth(Node* Node, int time, int k);
     int get(Node* node, int value);
     void update(Node* node);
@@ -215,19 +215,18 @@ int Treap::count(int time){
     return 0;
 };
 
-int Treap::_count(Node* node, int time, int cnt){
+int Treap::_count(Node* node, int time){
     if (node->is_leaf){
         if(node->key<=time){          //key=time
-            cnt+=node->weight;
+            return node->weight;
         }
-        return cnt;
+        return 0;
     }
     else if(time<node->right->key){         
-        return _count(node->left,time,cnt);
+        return _count(node->left,time);
     }
     else {
-        cnt+=node->left->weight;  
-        return _count(node->right,time,cnt);
+        return _count(node->right,time)+ node->left->weight;
     }
 };
 
