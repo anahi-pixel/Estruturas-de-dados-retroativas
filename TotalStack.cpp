@@ -211,7 +211,7 @@ Node* Treap::_erase(Node* node, int key, int k) {
 
 //returns number of leaves with key<= time
 int Treap::count(int time){
-    if(root) return (_count(root,time,0));
+    if(root) return (_count(root,time));
     return 0;
 };
 
