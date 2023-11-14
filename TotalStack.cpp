@@ -74,24 +74,7 @@ Node* Treap::rotateLeft(Node* node) {
 
     update(node);
     update(newRoot);
-
-    /*node->weight=node->left->weight+node->right->weight;
-    newRoot->weight=newRoot->left->weight+newRoot->right->weight;
-
-    int lo=node->left->leftover+node->right->weight;
-    if(node->right->leftover> lo) {
-        lo=node->right->leftover;
-    }
-    if(lo<=0) node->leftover=0;
-    else node->leftover=lo;
-
-    lo=newRoot->left->leftover+newRoot->right->weight;
-    if(newRoot->right->leftover> lo) {
-        lo=newRoot->right->leftover;
-    }
-    if(lo<=0) newRoot->leftover=0;
-    else newRoot->leftover=lo;*/
-
+    
     return newRoot;
 }
 
@@ -102,22 +85,6 @@ Node* Treap::rotateRight(Node* node) {
 
     update(node);
     update(newRoot);
-    /*node->weight=node->left->weight+node->right->weight;
-    newRoot->weight=newRoot->left->weight+newRoot->right->weight;
-
-    int lo=node->left->leftover+node->right->weight;
-    if(node->right->leftover> lo) {
-        lo=node->right->leftover;
-    }
-    if(lo<=0) node->leftover=0;
-    else node->leftover=lo;
-
-    lo=newRoot->left->leftover+newRoot->right->weight;
-    if(newRoot->right->leftover> lo) {
-        lo=newRoot->right->leftover;
-    }
-    if(lo<=0) newRoot->leftover=0;
-    else newRoot->leftover=lo;*/
 
     return newRoot;
 }
@@ -162,16 +129,7 @@ Node* Treap::_insert(Node* node, int key, int value, int w) {   //w=weight
         if (node->right->priority < node->priority)
             node = rotateLeft(node);
     }
-
-    /*int lo=root->left->leftover+root->right->weight;
-    if(root->right->leftover> lo) {
-        lo=root->right->leftover;
-    }
-    if(lo<=0) root->leftover=0;
-    else root->leftover=lo;*/
     update(node);
-    //root->weight += w;
-    //root->key=root->left->key;
     return node;
 }
 
@@ -186,11 +144,6 @@ Node* Treap::_erase(Node* node, int key, int k) {
         node->left=_erase(node->left,key,k);
         if(!node->left) node=node->right;
         else {
-            /*root->weight-=k;
-            lo=root->left->leftover+root->right->weight;
-            if(lo<=0)root->leftover=0;
-            else root->leftover=lo;
-            root->key=root->left->key;*/
             update(node);
         }
     }
@@ -198,11 +151,6 @@ Node* Treap::_erase(Node* node, int key, int k) {
         node->right=_erase(node->right,key,k);
         if(!node->right) node=node->left;
         else{
-            /*root->weight-=k;
-            lo=root->left->leftover+root->right->weight;
-            if(lo<=0)root->leftover=0;
-            else root->leftover=lo;
-            root->key=root->left->key;*/
             update(node);
         }
     }
