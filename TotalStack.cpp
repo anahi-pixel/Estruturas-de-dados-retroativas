@@ -1,6 +1,19 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+//Utility
+vector<int> split(string str){ 
+    string s;
+    stringstream ss(str);
+    vector<int> v;
+
+    while (getline(ss, s, ' ')) {
+        v.push_back(stoi(s));
+    }
+
+    return v;
+}
+
 //STRUCT
 struct Node {
     int key;            //for leaves: time, for internal nodes: min_time (min time)
@@ -47,11 +60,12 @@ class Treap{
     Node* rotateLeft(Node* node);
     Node* rotateRight(Node* node);
     Node* _insert(Node* node, int key, int value, int k);
-    Node* _erase(Node* node, int key, int k);
+    Node* _erase(Node* node, int key);
     int _count(Node* node,int time);
-    vector<int> _Kth(Node* Node, int time, int k);
+    vector<int> _Kth(Node* node, int time, int k);
     int get(Node* node, int value);
     void update(Node* node);
+    int _size(Node* node, int key);
 
     public:
     Node* root;
@@ -59,12 +73,12 @@ class Treap{
         root=nullptr;
     };
     void insert(int key, int value, int k);   
-    void erase(int key, int k);               
+    void erase(int key);     
     int count(int time);
     int Kth(int time, int k);
     void inorderTraversal(Node* node);
     void traverse();
-    int size(Node* node);
+    int size(int key);
 };
 
 Node* Treap::rotateLeft(Node* node) {
@@ -74,7 +88,7 @@ Node* Treap::rotateLeft(Node* node) {
 
     update(node);
     update(newRoot);
-    
+
     return newRoot;
 }
 
@@ -95,7 +109,6 @@ void Treap::insert(int key, int value, int k){                  //k=1 or -1 (wei
 }
 
 Node* Treap::_insert(Node* node, int key, int value, int w) {   //w=weight
-
     if (node->is_leaf){
         Node* new_node;
         Node* _leaf=new Node(key,value,w);
@@ -133,22 +146,22 @@ Node* Treap::_insert(Node* node, int key, int value, int w) {   //w=weight
     return node;
 }
 
-void Treap::erase(int key, int k){          //k is weight
-    if(root) root=_erase(root,key, k);
+void Treap::erase(int key){          //k is weight
+    if(root) root=_erase(root,key);
 }
 
-Node* Treap::_erase(Node* node, int key, int k) {         
+Node* Treap::_erase(Node* node, int key) {         
     int lo=0;
     if (node->is_leaf) return nullptr;
     else if (key<node->right->key){
-        node->left=_erase(node->left,key,k);
+        node->left=_erase(node->left,key);
         if(!node->left) node=node->right;
         else {
             update(node);
         }
     }
     else {
-        node->right=_erase(node->right,key,k);
+        node->right=_erase(node->right,key);
         if(!node->right) node=node->left;
         else{
             update(node);
@@ -176,7 +189,7 @@ int Treap::_count(Node* node, int time){
     else {
         return _count(node->right,time)+ node->left->weight;
     }
-};
+};;
 
 int Treap::Kth(int time, int k){
     if (count(time) == 0) { 
@@ -247,17 +260,35 @@ void Treap::update(Node* node){
     if(node->right->leftover> lo) {
         lo=node->right->leftover;
     }
-    if(lo<=0) node->leftover=0;
-    else node->leftover=lo;
+
+    node->leftover=lo;
 
     node->weight=node->left->weight+node->right->weight;
 
     root->key=root->left->key;
 }
 
-int Treap::size(Node* node){
-    return node->size;
+int Treap::size(int key){
+    if (count(key) == 0) { 
+        return INT_MAX;        
+    }
+    int size = _size(root,key); 
+    return(size);
 }
+
+int Treap::_size(Node* node,int key){        
+    if (node->is_leaf){
+        return node->weight;
+    }
+    else if (key < node->right->key){
+            return _size(node->left, key);
+    }
+    else{
+            int right = _size(node->right,key);
+            right+=node->left->weight;
+            return right;
+    }
+};
 
 class TotalStack{
     public:  
@@ -276,11 +307,11 @@ class TotalStack{
     }
     
     void remove_push(int time) {
-        treap->erase(time,1);
+        treap->erase(time);
     }
 
     void remove_pop(int time){
-        treap->erase(time,-1);
+        treap->erase(time);
     }
 
     int query_top(int time){
@@ -291,46 +322,64 @@ class TotalStack{
         return treap->Kth(time,k);
     }
 
-    void print(int time){
-    cout<<"Pilha no instante "<<time<< ":"<<endl;
-    int i=1;
-    int kth = treap->Kth(time,i);
-    while (kth!=INT_MAX){
-        cout<<"Posicao "<<i<<": "<<kth<<endl;
-        i++;
-        kth=treap->Kth(time,i);
-    };
-}
+    int query_size(int time){
+        return treap->size(time);
+    }
+
+    void print_stack(int time){
+        //cout<<"Pilha no instante "<<time<< ":"<<endl;
+        int i=1;
+        int kth = treap->Kth(time,i);
+        while (kth!=INT_MAX){
+            cout<<kth<< " ";
+            i++;
+            kth=treap->Kth(time,i);
+        };
+        cout<<endl;
+    }
+
+    void test(){
+        ifstream inputFile("stack.txt");
+
+        if(!inputFile.is_open()){
+            cerr<<"Error opening file"<<endl;
+            return;
+        }
+
+        string line;
+        vector<int> v;
+        while (getline(inputFile,line)){
+            v=split(line);
+            int option = v[0];
+            switch(option){
+                case 1:
+                    add_push(v[1],v[2]);
+                    break;
+                case 2:
+                    add_pop(v[1]);
+                    break;
+                case 3:
+                    remove_push(v[1]);
+                    break;
+                case 4:
+                    cout<<query_size(v[1])<<endl;
+                    break;
+                case 5:
+                    cout<<query_top(v[1])<<endl;
+                    break;
+                case 6:
+                    cout<<query_kth(v[1],v[2])<<endl;
+                    break;
+                case 7:
+                    print_stack(v[1]);
+                    break;
+            }
+        };
+        inputFile.close();
+    }
 };
 
 int main(){
     TotalStack totalStack = TotalStack();
-    totalStack.add_push(5,10); 
-    cout<<"add_push(5,10)"<<endl;
-    totalStack.print(10);
-
-    totalStack.add_push(18,15);
-    cout<<"add_push(18,15)"<<endl;
-    totalStack.print(20);
-    
-    totalStack.add_push(2,3);
-    cout<<"add_push(2,3)"<<endl;
-    totalStack.print(10);
-
-    totalStack.add_push(11,7);
-    cout<<"add_push(11,7)"<<endl;
-    totalStack.print(20);
-    totalStack.print(12);
-
-    totalStack.add_pop(20);
-    cout<<"add_pop(20)"<<endl;
-    totalStack.print(20);
-
-    totalStack.remove_pop(20);
-    cout<<"remove_pop(20)"<<endl;
-    totalStack.print(20);
-
-    totalStack.remove_push(18);
-    cout<<"remove_push(18)"<<endl;
-    totalStack.print(20);
+    totalStack.test();
 }
