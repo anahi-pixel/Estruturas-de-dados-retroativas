@@ -64,7 +64,10 @@ class Treap{
     int _count(Node* node,int time);
     vector<int> _Kth(Node* node, int time, int k);
     int get(Node* node, int value);
+    int getBridge(Node* node, int value);
     void update(Node* node);
+    vector<int> _lastEmptyBefore(Node* node, int key);
+    vector<int> _firstEmptyAfter(Node* node, int key);
 
     public:
     Node* root;
@@ -77,6 +80,8 @@ class Treap{
     int Kth(int time, int k);
     void inorderTraversal(Node* node);
     void traverse();
+    int lastEmptyBefore(int key);
+    int firstEmptyAfter(int key);
 };
 
 Node* Treap::rotateLeft(Node* node) {
@@ -187,7 +192,65 @@ int Treap::_count(Node* node, int time){
     else {
         return _count(node->right,time)+ node->left->weight;
     }
-};;
+};
+
+int Treap::lastEmptyBefore(int key){
+    if (count(key) == 0) { 
+        return INT_MAX;        
+    } 
+    return(_lastEmptyBefore(root,key)[0]);
+}
+
+vector<int> Treap::_lastEmptyBefore(Node* node,int key){        
+    if (node->is_leaf){
+        //return node->weight;
+        if (node->key < key) {
+            if(count(node->key)==0 ) return {node->key};         //found spot
+        }
+        return {INT_MAX,count(node->key)-node->weight};      
+        //return {INT_MAX,count(node->key)};                      //not found
+    }
+    else if (key < node->right->key){
+            /*vector<int> left = _lastEmptyBefore(node->left,key);
+            if(left[0]==INT_MAX){
+                return{INT_MAX, left[1]-node->left->weight};
+            }
+            else return left;*/
+            return  _lastEmptyBefore(node->left,key);
+    }
+    else{
+            vector<int> right=_lastEmptyBefore(node->right,key);
+            if (right[0]==INT_MAX) {                            //if spot hasn't been found yet
+                if(node->left->leftover>=right[1]){
+                    return {getBridge(node->left,right[1])};
+                }
+                else{
+                    return {INT_MAX, right[1]-node->left->weight};
+                }
+            }
+            else return right;                                  //if found, return
+    }
+};
+
+int Treap::getBridge(Node* node, int k)  {                 
+    if (node->is_leaf)
+            return node->key;
+    else if (node->right->leftover >= k)
+            return get(node->right, k);
+    else
+        return get(node->left, k - node->right->weight);
+}; 
+
+int Treap::firstEmptyAfter(int key){
+    if (count(key) == 0) { 
+        return INT_MAX;        
+    } 
+    return(_firstEmptyAfter(root,key)[0]);
+}
+
+vector<int> Treap::_firstEmptyAfter(Node* node,int key){        
+    return {};
+};
 
 int Treap::Kth(int time, int k){
     if (count(time) == 0) { 
@@ -235,7 +298,7 @@ int Treap::get(Node* node, int k)  {                            //k=position
             return get(node->right, k);
     else
         return get(node->left, k - node->right->weight);
-};      
+}; 
 
 void Treap::inorderTraversal(Node* node) {
     if (node) {
@@ -302,6 +365,10 @@ class TotalStack{
         return treap->count(time);
     }
 
+    int last_empty(int time){
+        return treap->lastEmptyBefore(time);
+    }
+
     void print_stack(int time){
         //cout<<"Pilha no instante "<<time<< ":"<<endl;
         int i=1;
@@ -315,7 +382,7 @@ class TotalStack{
     }
 
     void test(){
-        ifstream inputFile("stack.txt");
+        ifstream inputFile("stack2.txt");
 
         if(!inputFile.is_open()){
             cerr<<"Error opening file"<<endl;
@@ -348,6 +415,9 @@ class TotalStack{
                     break;
                 case 7:
                     print_stack(v[1]);
+                    break;
+                case 8:
+                    cout<<last_empty(v[1])<<endl;
                     break;
             }
         };
