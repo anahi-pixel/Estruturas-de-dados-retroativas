@@ -65,7 +65,6 @@ class Treap{
     vector<int> _Kth(Node* node, int time, int k);
     int get(Node* node, int value);
     void update(Node* node);
-    int _size(Node* node, int key);
 
     public:
     Node* root;
@@ -78,7 +77,6 @@ class Treap{
     int Kth(int time, int k);
     void inorderTraversal(Node* node);
     void traverse();
-    int size(int key);
 };
 
 Node* Treap::rotateLeft(Node* node) {
@@ -268,28 +266,6 @@ void Treap::update(Node* node){
     root->key=root->left->key;
 }
 
-int Treap::size(int key){
-    if (count(key) == 0) { 
-        return INT_MAX;        
-    }
-    int size = _size(root,key); 
-    return(size);
-}
-
-int Treap::_size(Node* node,int key){        
-    if (node->is_leaf){
-        return node->weight;
-    }
-    else if (key < node->right->key){
-            return _size(node->left, key);
-    }
-    else{
-            int right = _size(node->right,key);
-            right+=node->left->weight;
-            return right;
-    }
-};
-
 class TotalStack{
     public:  
     Treap* treap;  
@@ -323,7 +299,7 @@ class TotalStack{
     }
 
     int query_size(int time){
-        return treap->size(time);
+        return treap->count(time);
     }
 
     void print_stack(int time){
