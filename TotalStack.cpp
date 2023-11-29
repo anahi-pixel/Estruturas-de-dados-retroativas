@@ -66,7 +66,7 @@ class Treap{
     int get(Node* node, int value);
     int getBridge(Node* node, int value);
     void update(Node* node);
-    vector<int> _lastEmptyBefore(Node* node, int key);
+    vector<int> _lastEmptyBefore(Node* node, int key,int cnt);
     vector<int> _firstEmptyAfter(Node* node, int key);
 
     public:
@@ -78,7 +78,7 @@ class Treap{
     void erase(int key);     
     int count(int time);
     int Kth(int time, int k);
-    void inorderTraversal(Node* node);
+    void inorderTraversal(Node* node, int a);
     void traverse();
     int lastEmptyBefore(int key);
     int firstEmptyAfter(int key);
@@ -137,15 +137,17 @@ Node* Treap::_insert(Node* node, int key, int value, int w) {   //w=weight
     }
     else if (key < node->right->key) { 
         node->left = _insert(node->left, key, value, w);
+        update(node);
         if (node->left->priority < node->priority)
             node = rotateRight(node);
     }
     else {
         node->right = _insert(node->right, key, value, w);
+        update(node);
         if (node->right->priority < node->priority)
             node = rotateLeft(node);
     }
-    update(node);
+    //update(node);
     return node;
 }
 
@@ -195,19 +197,25 @@ int Treap::_count(Node* node, int time){
 };
 
 int Treap::lastEmptyBefore(int key){
+    int cnt=0;
     if (count(key) == 0) { 
         return INT_MAX;        
     } 
-    return(_lastEmptyBefore(root,key)[0]);
+    return(_lastEmptyBefore(root,key,cnt)[0]);
 }
 
-vector<int> Treap::_lastEmptyBefore(Node* node,int key){        
+vector<int> Treap::_lastEmptyBefore(Node* node,int key, int cnt){   
+    cout<<node<<endl;     
     if (node->is_leaf){
         //return node->weight;
-        if (node->key < key) {
-            if(count(node->key)==0 ) return {node->key};         //found spot
+        if (node->key <= key) {
+            cnt+=node->weight;
+            if(cnt==0) {
+                cout<<"achei no: "<< node << endl;
+                return {node->key};
+            };         //found spot
         }
-        return {INT_MAX,count(node->key)-node->weight};      
+        return {INT_MAX,cnt};      
         //return {INT_MAX,count(node->key)};                      //not found
     }
     else if (key < node->right->key){
@@ -216,13 +224,17 @@ vector<int> Treap::_lastEmptyBefore(Node* node,int key){
                 return{INT_MAX, left[1]-node->left->weight};
             }
             else return left;*/
-            return  _lastEmptyBefore(node->left,key);
+            return  _lastEmptyBefore(node->left,key,cnt);
     }
     else{
-            vector<int> right=_lastEmptyBefore(node->right,key);
+            cnt=cnt+node->left->weight;
+            vector<int> right=_lastEmptyBefore(node->right,key,cnt);
             if (right[0]==INT_MAX) {                            //if spot hasn't been found yet
                 if(node->left->leftover>=right[1]){
-                    return {getBridge(node->left,right[1])};
+                    cout<<"achei no: "<< node << endl;
+                    return {
+                        getBridge(node->left,right[1])
+                    };
                 }
                 else{
                     return {INT_MAX, right[1]-node->left->weight};
@@ -236,9 +248,9 @@ int Treap::getBridge(Node* node, int k)  {
     if (node->is_leaf)
             return node->key;
     else if (node->right->leftover >= k)
-            return get(node->right, k);
+            return getBridge(node->right, k);
     else
-        return get(node->left, k - node->right->weight);
+        return getBridge(node->left, k - node->right->weight);
 }; 
 
 int Treap::firstEmptyAfter(int key){
@@ -300,16 +312,20 @@ int Treap::get(Node* node, int k)  {                            //k=position
         return get(node->left, k - node->right->weight);
 }; 
 
-void Treap::inorderTraversal(Node* node) {
+void Treap::inorderTraversal(Node* node, int a) {
     if (node) {
-        inorderTraversal(node->left);
-        if(node->value != INT_MAX)cout << node->key << ":" << node->value << " ";
-        inorderTraversal(node->right);
+        inorderTraversal(node->left,a+3);
+        for (int i = 0; i < a; i++)
+        {
+            cout<< " ";
+        }
+        cout<< node << ":" << node->key <<endl;
+        inorderTraversal(node->right,a+3);
     }
 }
 
 void Treap::traverse(){
-    inorderTraversal(root);
+    inorderTraversal(root,0);
 }
 
 void Treap::update(Node* node){
@@ -418,6 +434,10 @@ class TotalStack{
                     break;
                 case 8:
                     cout<<last_empty(v[1])<<endl;
+                    break;
+                case 9:
+                    treap->traverse();
+                    cout<<endl;
                     break;
             }
         };
