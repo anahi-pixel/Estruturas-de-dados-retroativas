@@ -24,7 +24,6 @@ struct Node {
     int weight;         //1 if push -1 if pop
     int leftover;
     bool is_leaf;
-    int size; 
 
     Node(int k, int v, int w) {    //Leaf
         key=k;
@@ -37,8 +36,6 @@ struct Node {
 
         if (w == -1) leftover = 0;
         else leftover = 1;
-
-        size=1;
     }
     
     Node(int k, int lo, int w, Node* l, Node* r){   //internal node
@@ -50,7 +47,6 @@ struct Node {
         weight=w;
         leftover=lo;
         is_leaf=false;
-        size=0;
     }
 };
 
@@ -59,7 +55,7 @@ class Treap{
     private:
     Node* rotateLeft(Node* node);
     Node* rotateRight(Node* node);
-    Node* _insert(Node* node, int key, int value, int k);
+    Node* _insert(Node* node, int key, int value, int w);
     Node* _erase(Node* node, int key);
     int _count(Node* node,int time);
     vector<int> _Kth(Node* node, int time, int k);
@@ -74,7 +70,7 @@ class Treap{
     Treap(){
         root=nullptr;
     };
-    void insert(int key, int value, int k);   
+    void insert(int key, int value, int w);   
     void erase(int key);     
     int count(int time);
     int Kth(int time, int k);
@@ -106,9 +102,9 @@ Node* Treap::rotateRight(Node* node) {
     return newRoot;
 }
 
-void Treap::insert(int key, int value, int k){                  //k=1 or -1 (weight)
-    if (!root) root= new Node (key,value,k);
-    else root= _insert(root,key,value,k);
+void Treap::insert(int key, int value, int w){                  //w=1 or -1 (weight)
+    if (!root) root= new Node (key,value,w);
+    else root= _insert(root,key,value,w);
 }
 
 Node* Treap::_insert(Node* node, int key, int value, int w) {   //w=weight
@@ -205,7 +201,7 @@ int Treap::lastEmptyBefore(int key){
 }
 
 vector<int> Treap::_lastEmptyBefore(Node* node,int key, int cnt){   
-    cout<<node<<endl;     
+    //cout<<node<<endl;     
     if (node->is_leaf){
         //return node->weight;
         if (node->key <= key) {
@@ -331,8 +327,6 @@ void Treap::traverse(){
 void Treap::update(Node* node){
     if(node->is_leaf) return;
 
-    node->size=node->right->size+node->left->size+1;
-
     int lo=node->left->leftover+node->right->weight;
     if(node->right->leftover> lo) {
         lo=node->right->leftover;
@@ -342,7 +336,7 @@ void Treap::update(Node* node){
 
     node->weight=node->left->weight+node->right->weight;
 
-    root->key=root->left->key;
+    node->key=node->left->key;
 }
 
 class TotalStack{
@@ -433,7 +427,7 @@ class TotalStack{
                     print_stack(v[1]);
                     break;
                 case 8:
-                    cout<<last_empty(v[1])<<endl;
+                    cout<<"last empty at "<<last_empty(v[1])<<endl;
                     break;
                 case 9:
                     treap->traverse();
