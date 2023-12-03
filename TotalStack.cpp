@@ -195,7 +195,7 @@ int Treap::_count(Node* node, int time){
 int Treap::lastEmptyBefore(int key){
     int cnt=0;
     if (count(key) == 0) { 
-        return INT_MAX;        
+        return key;        
     } 
     return(_lastEmptyBefore(root,key,cnt)[0]);
 }
@@ -251,7 +251,7 @@ int Treap::getBridge(Node* node, int k)  {
 
 int Treap::firstEmptyAfter(int key){
     if (count(key) == 0) { 
-        return INT_MAX;        
+        return key;        
     } 
     return(_firstEmptyAfter(root,key)[0]);
 }
