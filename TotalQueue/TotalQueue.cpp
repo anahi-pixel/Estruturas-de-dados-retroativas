@@ -256,7 +256,7 @@ class TotalQueue{
     }
 
     void print_queue(int time){
-        cout <<"Pilha no instante "<<time<< ":"<<endl;
+        cout <<"Fila no instante "<<time<< ":"<<endl;
         int size=enqueueTreap->count(time)-dequeueTreap->count(time);
         for (int i = 1; i <= size; i++)
         {
