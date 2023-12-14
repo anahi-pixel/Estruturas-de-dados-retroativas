@@ -4,4 +4,5 @@ Implementação de algumas estruturas de dados retroativas.
 
 - PartialQueue: fila parcialmente retroativa;
 - TotalQueue: fila totalmente retroativa;
-- TotalStack: pilha totalmente retroativa.
+- TotalStack: pilha totalmente retroativa;
+- PartialPriority: fila de prioridade parcialmente retroativa.
