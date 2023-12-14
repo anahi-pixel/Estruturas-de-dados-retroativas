@@ -1,3 +1,3 @@
-# Fila-de-prioridade-parcialmente-retroativa
+# PartialPriority
 
 Implementação da fila de prioridade parcialmente retroativa.
