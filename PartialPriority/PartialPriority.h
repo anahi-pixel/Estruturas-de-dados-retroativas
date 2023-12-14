@@ -123,10 +123,10 @@ class PartialPriority{
                     remove_delete_min(v[1]);
                     break;
                 case 5:
-                    cout << query_min << endl;
+                    cout << query_min() << endl;
                     break;
                 case 6:
-                    cout<< query_size <<endl;
+                    cout<< query_size() <<endl;
                     break;
                 case 7:
                     print_queue();
