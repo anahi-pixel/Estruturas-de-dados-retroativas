@@ -47,12 +47,19 @@ class Treap{
 void Treap::update(Node* node){
     if(node->is_leaf) return;
 
-    int lo=node->left->leftover+node->right->weight;
-    if(node->right->leftover> lo) {
-        lo=node->right->leftover;
+    int lo=node->left->smax+node->right->weight;
+    if(node->right->smax> lo) {
+        lo=node->right->smax;
     }
 
-    node->leftover=lo;
+    node->smax=lo;
+
+    lo=node->right->pmax+node->left->weight;
+    if(node->left->pmax> lo) {
+        lo=node->left->pmax;
+    }
+
+    node->pmax=lo;
 
     if (node->right->min_in<node->left->min_in) node->min_in=node->right->min_in;
     else node->min_in=node->left->min_in;
@@ -260,8 +267,12 @@ void Treap::_setWeightOne(Node* node,int time, int value){
 //bridge = any moment in which the set of keys in the queue is contained in the current set of keys
 int Treap::lastBridgeBefore(int time){      //ori
     int cnt=0;
-    if (root) return(_lastBridgeBefore(root,time,cnt)[0]);
-    return INT_MAX;
+    if (root) {
+        int bridge=_lastBridgeBefore(root,time,cnt)[0];
+        if (bridge==INT_MAX) return time;
+        return bridge;
+    }
+    return time;
 }
 
 vector<int> Treap::_lastBridgeBefore(Node* node,int key, int cnt){        
@@ -284,7 +295,7 @@ vector<int> Treap::_lastBridgeBefore(Node* node,int key, int cnt){
             cnt=cnt+node->left->weight;
             vector<int> right=_lastBridgeBefore(node->right,key,cnt);
             if (right[0]==INT_MAX) {                                //if spot hasn't been found yet
-                if(node->left->leftover>=right[1]){
+                if(node->left->smax>=right[1]){
                     return {
                         getBridgeBefore(node->left,right[1])
                     };
@@ -300,7 +311,7 @@ vector<int> Treap::_lastBridgeBefore(Node* node,int key, int cnt){
 int Treap::getBridgeBefore(Node* node, int cnt)  {                
     if (node->is_leaf)
             return node->key;                                     
-    else if (node->right->leftover >= cnt)
+    else if (node->right->smax >= cnt)
             return getBridgeBefore(node->right, cnt);
     else
         return getBridgeBefore(node->left, cnt - node->right->weight);
@@ -329,7 +340,7 @@ vector<int> Treap::_firstBridgeAfter(Node* node,int key, int cnt){
         //cnt=cnt+node->right->weight;
         vector<int> left= _firstBridgeAfter(node->left,key,cnt);
         if (left[0]==INT_MAX) {
-            if(node->right->leftover==0 && -node->right->weight>=cnt){
+            if(node->right->smax==0 && -node->right->weight>=cnt){
                 return {
                     getBridgeAfter(node->right,left[1])
                 };
@@ -349,26 +360,43 @@ vector<int> Treap::_firstBridgeAfter(Node* node,int key, int cnt){
 int Treap::getBridgeAfter(Node* node, int cnt)  {                
     if (node->is_leaf)
             return node->key;                                     
-    else if (node->right->leftover == 0 && -node->left->weight >= cnt)
+    else if (node->right->smax == 0 && -node->left->weight >= cnt)
             return getBridgeAfter(node->left, cnt);
     else
         return getBridgeAfter(node->right, cnt + node->right->weight);
 }; 
 
+//returns the maximum element outside of q_now inserted after or at time 
 Node* Treap::maxAfterBridge(int time){  //ori
-    int max=0;
-    if (root) return _maxAfterBridge(root, time, max);
+    int max=-INT_MAX;
+    //Node* result;
+    if (root && root->max_out!=-INT_MAX){
+        return _maxAfterBridge(root, time, max);
+        //result = _maxAfterBridge(root, time, max);
+        //if (max==-INT_MAX) return nullptr;
+        //else return result;
+    } 
     else return nullptr;
 }
 
 Node* Treap::_maxAfterBridge(Node* node, int time, int max){
     if (node->is_leaf){
+        if (node->weight==1) {
+            if (node->max_out > max) {
+                max = node->max_out;
+                return node;
+            }
+        }
         return nullptr;
     }
     else if (time < node->right->key){
         if (node->right->max_out > max) max = node->right->max_out;
-        Node* left=_maxAfterBridge(node->left,time,max);   
+        Node* left=_maxAfterBridge(node->left,time,max);
+        if (left!=nullptr){
+            return left;
+        }   
         if(node->right->max_out==max) {
+            //cout<<"a"<<endl;
             return(getNode(node->right,max,true));
         }
         return left;
@@ -394,6 +422,9 @@ Node* Treap::_minBeforeBridge(Node* node, int time, int min){
     else{
         if (node->left->min_in < min) min = node->left->min_in;
         Node* right=_minBeforeBridge(node->right,time,min);   
+        if(right!=nullptr){
+            return right;
+        }
         if(node->left->min_in==min) {
             return(getNode(node->left,min,false));
         }
@@ -421,7 +452,7 @@ void Treap::inorderTraversal(Node* node, int a) {
         {
             cout<< " ";
         }
-        cout<< node->key << ":" << node->weight << " " << node->leftover << " " << node->value << endl;
+        cout<< node->key << ":" << node->weight << " " << node->smax << " " << node->value << endl;
         inorderTraversal(node->right,a+3);
     }
 }
