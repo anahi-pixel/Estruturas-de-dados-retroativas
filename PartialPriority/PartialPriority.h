@@ -36,7 +36,7 @@ class PartialPriority{
         int q_now_value;
         int time_bridge = updates_tree->lastBridgeBefore(time);
         Node* max_bridge = updates_tree->maxAfterBridge(time_bridge);
-        if(value>max_bridge->value){
+        if(max_bridge == nullptr || value>max_bridge->value){
             updates_tree->insert(time,value,0);
             q_now_value=value;
         }
@@ -46,7 +46,6 @@ class PartialPriority{
             q_now_value=max_bridge->value;
         }
         q_now->insert(q_now_value);             //nodes in q_now do not have weights, only in updates_tree
-        
     };
 
     void add_delete_min(int time){
@@ -74,8 +73,7 @@ class PartialPriority{
     };
 
     void remove_delete_min(int time){
-        Node* delete_node=updates_tree->search(time);
-        int time_bridge = updates_tree->lastBridgeBefore(time);
+        int time_bridge = updates_tree->lastBridgeBefore(time-1);
         Node* max_bridge = updates_tree->maxAfterBridge(time_bridge);
         updates_tree->setWeightZero(max_bridge->key);
         updates_tree->erase(time);
@@ -106,6 +104,7 @@ class PartialPriority{
 
         string line;
         vector<int> v;
+        int i=0;
         while (getline(inputFile,line)){
             v=split(line);
             int option = v[0];
@@ -129,6 +128,8 @@ class PartialPriority{
                     cout<< query_size() <<endl;
                     break;
                 case 7:
+                    i++;
+                    cout<<i<<" ";
                     print_queue();
                     break;
                 case 8:
