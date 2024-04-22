@@ -1,8 +1,8 @@
-# Estruturas-de-dados-retroativas
+# Retroactive data structures
 
-Implementação de algumas estruturas de dados retroativas.
+Implementtation of some retroactive data structures.
 
-- PartialQueue: fila parcialmente retroativa;
-- TotalQueue: fila totalmente retroativa;
-- TotalStack: pilha totalmente retroativa;
-- PartialPriority: fila de prioridade parcialmente retroativa.
+- PartialQueue: partially retroactive queue;
+- TotalQueue: totally retroactive queue;
+- TotalStack: totally retroactive stack;
+- PartialPriority: partially retroactive priority queue.
