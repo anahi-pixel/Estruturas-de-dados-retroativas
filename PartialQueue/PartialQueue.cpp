@@ -288,44 +288,48 @@ class PartialQueue{
     int query_last(){
         return list->last->value;
     }
+
+    void test(string file){
+        ifstream inputFile(file);
+
+        if(!inputFile.is_open()){
+            cerr<<"Error opening file"<<endl;
+            return;
+        }
+
+        string line;
+        vector<int> v;
+        while (getline(inputFile,line)){
+            v=split(line);
+            int option = v[0];
+            switch(option){
+                case 1:
+                    add_enqueue(v[1],v[2]);
+                    break;
+                case 2:
+                    add_dequeue(v[1]);
+                    break;
+                case 3:
+                    remove_enqueue(v[1]);
+                    break;
+                case 4:
+                    remove_dequeue(v[1]);
+                    break;
+                case 5:
+                    cout << query_first() << endl;
+                    break;
+                case 6:
+                    cout << query_last() << endl;
+                    break;
+            }
+        };
+        inputFile.close();
+    }
 };
 
 //Testing the implementation
 int main(){
+    string file = "queue.txt";
     PartialQueue partQ = PartialQueue();
-    partQ.add_enqueue(5,10);
-    cout<<"add_enqueue(5,10)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
-    partQ.add_enqueue(18,15);
-    cout<<"add_enqueue(18,15)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
-    partQ.add_enqueue(2,3);
-    cout<<"add_enqueue(2,3)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
-    partQ.add_enqueue(11,7);
-    cout<<"add_enqueue(11,7)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
-    partQ.add_dequeue(3);
-    cout<<"add_dequeue(3)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
-    partQ.remove_dequeue(3);
-    cout<<"remove_dequeue(3)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
-    partQ.remove_enqueue(18);
-    cout<<"remove_enqueue(18)"<<endl;
-    cout<<"Primeiro da fila: "<<partQ.query_first()<<endl;
-    cout<<"Ultimo da fila: "<<partQ.query_last()<<endl;
-    cout<<"Front: "<<partQ.front->value<<endl;
+    partQ.test(file);
 }
