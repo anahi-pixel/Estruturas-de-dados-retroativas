@@ -300,7 +300,7 @@ class TotalQueue{
                 case 7:
                     print_queue(v[1]);
                     break;
-                case 9:
+                case 8:
                     enqueueTreap->traverse();
                     cout << endl;
                     dequeueTreap->traverse();
