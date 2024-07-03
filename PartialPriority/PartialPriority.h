@@ -25,10 +25,12 @@ vector<int> split(string str){
 class PartialPriority{
     public:  
     ValuesTree* q_now;
+    ValuesTree* q_del;
     Treap* updates_tree;  
 
     PartialPriority(){
         q_now= new ValuesTree();
+        q_del= new ValuesTree();
         updates_tree=new Treap();
     }
 
@@ -44,6 +46,8 @@ class PartialPriority{
             updates_tree->setWeightZero(max_bridge->key);
             updates_tree->insert(time,value,1);
             q_now_value=max_bridge->value;
+            q_del->insert(value);
+            q_del->erase(max_bridge->value);
         }
         q_now->insert(q_now_value);             //nodes in q_now do not have weights, only in updates_tree
     };
@@ -53,7 +57,8 @@ class PartialPriority{
         Node* min_bridge = updates_tree->minBeforeBridge(time_bridge);
         updates_tree->setWeightOne(min_bridge->key);
         updates_tree->insert(time,min_bridge->value,-1);
-        q_now->erase(min_bridge->value);           
+        q_now->erase(min_bridge->value); 
+        q_del->insert(min_bridge->value);          
     };
 
     void remove_insert(int time) {
@@ -69,7 +74,8 @@ class PartialPriority{
             q_now_value=min_bridge->value;
         }
         updates_tree->erase(time);
-        q_now->erase(q_now_value);      
+        q_now->erase(q_now_value);
+        q_del->insert(q_now_value);   
     };
 
     void remove_delete_min(int time){
@@ -77,7 +83,9 @@ class PartialPriority{
         Node* max_bridge = updates_tree->maxAfterBridge(time_bridge);
         updates_tree->setWeightZero(max_bridge->key);
         updates_tree->erase(time);
-        q_now->insert(max_bridge->value);           
+        q_now->insert(max_bridge->value);
+        q_del->erase(max_bridge->value);
+
     };
 
     int query_min(){
