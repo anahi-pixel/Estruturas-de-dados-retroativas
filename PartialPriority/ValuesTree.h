@@ -1,153 +1,117 @@
 #pragma once
-#ifndef PARTIALPRIORITY_H_
-#define PARTIALPRIORITY_H_
+#ifndef VALUESTREE_H_
+#define VALUESTREE_H_
 
 #include <bits/stdc++.h>
-#include "ValuesTree.h"
-#include "OperationsTree.h"
-
+#include "Node.h"
 using namespace std;
 
-//Utility
-vector<int> split(string str){ 
-    string s;
-    stringstream ss(str);
-    vector<int> v;
+class ValuesTree {
+    private:
+    Node* rotateLeft(Node* node) {
+        Node* newRoot = node->right;
+        node->right = newRoot->left;
+        newRoot->left = node;
+        return newRoot;
+    };
 
-    while (getline(ss, s, ' ')) {
-        v.push_back(stoi(s));
-    }
+    Node* rotateRight(Node* node) {
+        Node* newRoot = node->left;
+        node->left = newRoot->right;
+        newRoot->right = node;
+        return newRoot;
+    };
 
-    return v;
-}
+    Node* _insert(Node* root, int key) {
 
-//Partial priority queue
-class PartialPriority{
-    public:  
-    ValuesTree* q_now;
-    ValuesTree* q_del;
-    Treap* updates_tree;  
+        if (!root) return new Node(key);
 
-    PartialPriority(){
-        q_now= new ValuesTree();
-        q_del= new ValuesTree();
-        updates_tree=new Treap();
-    }
-
-    void add_insert(int time, int value){
-        int q_now_value;
-        int time_bridge = updates_tree->lastBridgeBefore(time);
-        Node* max_bridge = updates_tree->maxAfterBridge(time_bridge);
-        if(max_bridge == nullptr || value>max_bridge->value){
-            updates_tree->insert(time,value,0);
-            q_now_value=value;
+        if (key < root->key) {
+            root->left = _insert(root->left, key);
+            if (root->left->priority < root->priority)              //min treap
+                root = rotateRight(root);
+        } else {
+            root->right = _insert(root->right, key);
+            if (root->right->priority < root->priority)
+                root = rotateLeft(root);
         }
+        return root;
+    };
+
+    Node* _erase(Node* root, int key) {
+
+        if (!root) return nullptr;
+
+        if (key < root->key)
+            root->left = _erase(root->left, key);
+        else if (key > root->key)
+            root->right = _erase(root->right, key);
         else {
-            updates_tree->setWeightZero(max_bridge->key);
-            updates_tree->insert(time,value,1);
-            q_now_value=max_bridge->value;
-            q_del->insert(value);
-            q_del->erase(max_bridge->value);
+            if (!root->left) {
+                Node* temp = root->right;
+                delete root;
+                return temp;
+            } 
+            else if (!root->right) {
+                Node* temp = root->left;
+                delete root;
+                return temp;
+            } 
+            else {
+                if (root->left->priority < root->right->priority) {
+                    root = rotateRight(root);
+                    root->right = _erase(root->right, key);
+                } 
+                else {
+                    root = rotateLeft(root);
+                    root->left = _erase(root->left, key);
+                }
+            }
         }
-        q_now->insert(q_now_value);             //nodes in q_now do not have weights, only in updates_tree
+        return root;
     };
 
-    void add_delete_min(int time){
-        int time_bridge = updates_tree->firstBridgeAfter(time);
-        Node* min_bridge = updates_tree->minBeforeBridge(time_bridge);
-        updates_tree->setWeightOne(min_bridge->key);
-        updates_tree->insert(time,min_bridge->value,-1);
-        q_now->erase(min_bridge->value); 
-        q_del->insert(min_bridge->value);          
+    Node* _min(Node* node){
+        if(node->left) return node->left;
+        return node;
     };
 
-    void remove_insert(int time) {
-        int q_now_value;
-        Node* delete_node=updates_tree->search(time);
-        if (delete_node->weight==0){
-            q_now_value=delete_node->value;
+    void inorderTraversal(Node* node) {
+        if (node) {
+            inorderTraversal(node->left);
+            cout << node->key << " ";
+            inorderTraversal(node->right);
         }
-        else if (delete_node->weight==1) {
-            int time_bridge = updates_tree->firstBridgeAfter(time);
-            Node* min_bridge = updates_tree->minBeforeBridge(time_bridge);
-            updates_tree->setWeightOne(min_bridge->key);
-            q_now_value=min_bridge->value;
-        }
-        updates_tree->erase(time);
-        q_now->erase(q_now_value);
-        q_del->insert(q_now_value);   
     };
 
-    void remove_delete_min(int time){
-        int time_bridge = updates_tree->lastBridgeBefore(time-1);
-        Node* max_bridge = updates_tree->maxAfterBridge(time_bridge);
-        updates_tree->setWeightZero(max_bridge->key);
-        updates_tree->erase(time);
-        q_now->insert(max_bridge->value);
-        q_del->erase(max_bridge->value);
-
+    public:
+    Node* root;
+    int size;
+    
+    ValuesTree(){
+        root=nullptr;
+        size=0;
     };
 
-    int query_min(){
-        return q_now->min();
-    };
-
-    int query_size(){
-        return q_now->size;
-    };
-
-    void print_queue(){
-        cout<<"Fila de prioridade no instante atual: "<<endl;
-        q_now->traverse();
-        cout<<endl;
+    void insert(int key) {
+        size++;
+        root= _insert(root,key);
     }
 
-    void test(string file){
-        ifstream inputFile(file);
+    void erase(int key) {
+        size--;
+        root=_erase(root,key);
+    };
 
-        if(!inputFile.is_open()){
-            cerr<<"Error opening file"<<endl;
-            return;
-        }
+    int min() {
+        if (root) return _min(root)->key;
+        return INT_MAX;
+    }
 
-        string line;
-        vector<int> v;
-        int i=0;
-        while (getline(inputFile,line)){
-            v=split(line);
-            int option = v[0];
-            switch(option){
-                case 1:
-                    add_insert(v[1],v[2]);
-                    break;
-                case 2:
-                    add_delete_min(v[1]);
-                    break;
-                case 3:
-                    remove_insert(v[1]);
-                    break;
-                case 4:
-                    remove_delete_min(v[1]);
-                    break;
-                case 5:
-                    cout << query_min() << endl;
-                    break;
-                case 6:
-                    cout<< query_size() <<endl;
-                    break;
-                case 7:
-                    i++;
-                    cout<<i<<" ";
-                    print_queue();
-                    break;
-                case 8:
-                    updates_tree->traverse();
-                    cout << endl;
-                    break;
-            }
-        };
-        inputFile.close();
+    void traverse(){
+        inorderTraversal(root);
     }
 };
+
 
 #endif
