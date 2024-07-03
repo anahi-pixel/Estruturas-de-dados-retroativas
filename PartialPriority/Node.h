@@ -13,7 +13,8 @@ struct Node {
     Node* left;
     Node* right;
     int weight;             //1 if push and not currently in queue, -1 if pop, 0 if push and currently in queue
-    int leftover;
+    int smax;
+    int pmax;
     bool is_leaf; 
     int max_out;
     int min_in;
@@ -26,7 +27,7 @@ struct Node {
         //NOT USED:
         value=0;
         weight=0;
-        leftover=0;
+        smax=0;
         is_leaf=false;
         max_out=0;
         min_in=0;
@@ -41,20 +42,21 @@ struct Node {
         is_leaf=true;
         weight=w; 
         if(w==1) {
-            max_out=v;
-            min_in=INT_MAX;
+            max_out=v;          //largest element outside q_now in subtree
+            min_in=INT_MAX;     //smallest element inside q_now in subtree
         }
         else if (w==0) {
             max_out=-INT_MAX;
             min_in=v;
         }
         else {
-            max_out=INT_MAX;
+            max_out=-INT_MAX;
             min_in=INT_MAX;
         }
-        leftover=0;
-        //if (w == -1) leftover = 0;
-        //else leftover = 1;
+        smax=0;
+        pmax=0;
+        //if (w == -1) pmax = 0;
+        //else pmax = 1;
     }
     
     Node(int k, int w, Node* l, Node* r){   //Internal node
@@ -65,7 +67,7 @@ struct Node {
         priority=rand();
         weight=w;
         is_leaf=false;
-        leftover=0;
+        smax=0;
         max_out=0;
         min_in=0;
     }
