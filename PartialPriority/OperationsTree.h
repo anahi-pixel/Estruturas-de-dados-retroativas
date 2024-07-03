@@ -442,7 +442,7 @@ Node* Treap::getNode(Node* node, int m, bool type){
         if(node->is_leaf) return node;
         else if (node->right->min_in==m) return getNode(node->right,m,type);
         else return getNode(node->left,m,type);
-    }
+    } 
 }
 
 void Treap::inorderTraversal(Node* node, int a) {
