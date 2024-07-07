@@ -173,7 +173,7 @@ Node* Treap::_search(Node* node, int key) {
     if (!node)
         return nullptr;
 
-    if (key < node->key){
+    if (key <= node->key){
         if(node->left) return _search(node->left, key);
     }
     else {
