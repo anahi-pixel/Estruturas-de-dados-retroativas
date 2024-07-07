@@ -4,6 +4,7 @@ using namespace std;
 
 int main(){
     PartialPriority partQ = PartialPriority();
-    string file = "partialpriority.txt";
+    string file;
+    cin>>file;
     partQ.test(file);
 }
