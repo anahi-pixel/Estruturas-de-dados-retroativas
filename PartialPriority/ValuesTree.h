@@ -72,7 +72,7 @@ class ValuesTree {
     };
 
     Node* _min(Node* node){
-        if(node->left) return node->left;
+        if(node->left) return _min(node->left);
         return node;
     };
 
