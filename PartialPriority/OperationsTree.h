@@ -16,6 +16,8 @@ class Treap{
     Node* _insert(Node* root, int key, int value, int k);
     Node* _erase(Node* root, int key);
     Node* _search(Node* root, int key);
+    int  min_right_time(Node* node);
+    Node* _min(Node* node);
     vector<int> _lastBridgeBefore(Node* node,int key,int cnt);
     vector<int> _firstBridgeAfter(Node* node,int key,int cnt);
     int getBridgeBefore(Node* node, int k);
@@ -173,7 +175,7 @@ Node* Treap::_search(Node* node, int key) {
     if (!node)
         return nullptr;
 
-    if (key <= node->key){
+    if (key < min_right_time(node)){
         if(node->left) return _search(node->left, key);
     }
     else {
@@ -181,6 +183,18 @@ Node* Treap::_search(Node* node, int key) {
     }
     return node;
 }
+
+int Treap::min_right_time(Node* node) {
+    if (node->right) return (_min(node->right)->key);
+    return node->key;
+}
+
+Node* Treap::_min(Node* node){
+        if(node->left) {
+            return _min(node->left);
+        }
+        return node;
+};
 
 void Treap::setWeightZero(int time){    //ori
     int value;
