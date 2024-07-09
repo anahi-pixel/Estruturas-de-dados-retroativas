@@ -1,0 +1,16 @@
+1 Fila de prioridade no instante atual: 
+50 100 150 200 250 300 350 400 700 
+50
+9
+2 Fila de prioridade no instante atual: 
+50 100 150 200 250 300 350 400 
+50
+8
+3 Fila de prioridade no instante atual: 
+50 100 150 200 250 300 350 
+50
+7
+4 Fila de prioridade no instante atual: 
+50 100 150 200 300 350 
+50
+6
