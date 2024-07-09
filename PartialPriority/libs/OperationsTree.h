@@ -354,7 +354,7 @@ vector<int> Treap::_firstBridgeAfter(Node* node,int key, int cnt){
         //cnt=cnt+node->right->weight;
         vector<int> left= _firstBridgeAfter(node->left,key,cnt);
         if (left[0]==INT_MAX) {
-            if(node->right->smax==0 && -node->right->weight>=cnt){
+            if(node->right->smax==0 && -node->right->weight>=left[1){
                 return {
                     getBridgeAfter(node->right,left[1])
                 };
