@@ -1,0 +1,14 @@
+100
+7
+100
+6
+400
+5
+1 Fila de prioridade no instante atual: 
+500 600 700 800 
+500
+4
+2 Fila de prioridade no instante atual: 
+150 500 600 700 800 
+150
+5

@@ -1,0 +1,10 @@
+400
+5
+500
+4
+500
+5
+1 Fila de prioridade no instante atual: 
+300 500 600 700 800 900 
+300
+6
