@@ -409,7 +409,7 @@ Node* Treap::_maxAfterBridge(Node* node, int time, int max){
         if (left!=nullptr){
             return left;
         }   
-        if(node->right->max_out==max) {
+        if(node->right->max_out==max  && max!= -INT_MAX) {
             //cout<<"a"<<endl;
             return(getNode(node->right,max,true));
         }
@@ -439,7 +439,7 @@ Node* Treap::_minBeforeBridge(Node* node, int time, int min){
         if(right!=nullptr){
             return right;
         }
-        if(node->left->min_in==min) {
+        if(node->left->min_in==min && min != INT_MAX) {
             return(getNode(node->left,min,false));
         }
         return right;
