@@ -1,10 +1,8 @@
 #include <bits/stdc++.h>
-#include "PartialPriority.h"
+#include "libs/PartialPriority.h"
 using namespace std;
 
-int main(){
+int main(int argc, char *argv[]){
     PartialPriority partQ = PartialPriority();
-    string file;
-    cin>>file;
-    partQ.test(file);
+    partQ.test(argv[1]);
 }
